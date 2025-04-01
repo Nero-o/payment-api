@@ -1,0 +1,45 @@
+sequenceDiagram
+    actor User
+    participant API as API Layer
+    participant Service as Service Layer
+    participant Repository as Repository Layer
+    participant DB as Database
+
+    User->>API: POST /api/transactions/transfer
+    Note over User,API: {recipient_id, amount, description}
+    
+    API->>API: Validar JWT Token
+    API->>API: Validar dados de entrada
+    
+    API->>Service: transfer_service.create_transfer()
+    
+    Service->>Repository: wallet_repo.get_user_wallet()
+    Repository->>DB: SELECT wallet
+    DB->>Repository: Return wallet
+    Repository->>Service: Return wallet
+    
+    Service->>Repository: wallet_repo.get_recipient_wallet()
+    Repository->>DB: SELECT recipient wallet
+    DB->>Repository: Return recipient wallet
+    Repository->>Service: Return recipient wallet
+    
+    Service->>Service: Validar saldo suficiente
+    Service->>Service: Validar regras de negócio
+    
+    Service->>Repository: transaction_repo.create_pending()
+    Repository->>DB: INSERT transaction
+    DB->>Repository: Return transaction
+    Repository->>Service: Return transaction
+    
+    Service->>Repository: wallet_repo.update_balance()
+    Repository->>DB: UPDATE wallets
+    DB->>Repository: Confirm update
+    Repository->>Service: Return updated wallets
+    
+    Service->>Repository: transaction_repo.complete_transaction()
+    Repository->>DB: UPDATE transaction
+    DB->>Repository: Confirm update
+    Repository->>Service: Return updated transaction
+    
+    Service->>API: Return transaction
+    API->>User: Return 201 Created Response

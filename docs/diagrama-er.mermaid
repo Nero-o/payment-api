@@ -1,0 +1,47 @@
+erDiagram
+    User ||--|| UserProfile : has
+    User ||--|| Wallet : owns
+    Wallet ||--o{ Transaction : has
+    Wallet ||--o{ Transaction : receives
+
+    User {
+        uuid id PK
+        string username
+        string email
+        string password
+        string first_name
+        string last_name
+        boolean is_active
+        datetime created_at
+        datetime updated_at
+    }
+
+    UserProfile {
+        uuid id PK
+        uuid user_id FK
+        string phone_number
+        date date_of_birth
+        text address
+        datetime created_at
+        datetime updated_at
+    }
+
+    Wallet {
+        uuid id PK
+        uuid user_id FK
+        decimal balance
+        datetime created_at
+        datetime updated_at
+    }
+
+    Transaction {
+        uuid id PK
+        uuid wallet_id FK
+        uuid recipient_wallet_id FK
+        string transaction_type
+        decimal amount
+        text description
+        string status
+        datetime created_at
+        datetime completed_at
+    }
